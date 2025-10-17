@@ -136,7 +136,10 @@ fn main() {
                     state: KeyEventState::NONE,
                     code: KeyCode::Char('c'),
                     modifiers: KeyModifiers::CONTROL,
-                }) => break 'game_loop,
+                }) => {
+                    disable_raw_mode().unwrap(); 
+                    break 'game_loop;
+                }
                 _ => (),
             }
         }
