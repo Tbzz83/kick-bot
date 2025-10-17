@@ -7,8 +7,8 @@ pub const WAIT_TIME_MILLIS: u128 = 1000;
 pub const SLEEP_SECONDS: u64 = 1;
 
 // TODO get these values from a function that reads keybinds.yaml
-pub const USER_KICKS: [&str; 3] = ["7", "8", "9"];
-pub const USER_SHEEPS: [&str; 3] = ["&", "*", "("];
+pub const USER_SHEEPS: [&str; 3] = ["ctrl+7", "ctrl+8", "ctrl+9"];
+pub const USER_KICKS: [&str; 3] = ["&", "*", "("];
 pub const CC_OPTS: [&str; 2] = ["kick", "sheep"];
 
 pub enum OptionArrays {
@@ -71,6 +71,8 @@ fn get_key_modifier_and_key_from_target_keybind(target_keybind: String) -> (KeyM
 
     let modifier = &target_keybind[..i];
     let char_pressed: char = target_keybind.chars().nth(i+1).unwrap();
+
+    println!("modifier: {}, char_pressed: {}", modifier, char_pressed);
 
     match modifier {
         "shift" => return (KeyModifiers::SHIFT, char_pressed),
