@@ -7,7 +7,7 @@ pub const WAIT_TIME_MILLIS: u128 = 1000;
 pub const SLEEP_SECONDS: u64 = 1;
 
 // TODO get these values from a function that reads keybinds.yaml
-pub const USER_SHEEPS: [&str; 3] = ["7", "8", "9"];
+pub const USER_SHEEPS: [&str; 3] = ["ctrl+7", "ctrl+8", "ctrl+9"];
 pub const USER_KICKS: [&str; 3] = ["&", "*", "("];
 pub const CC_OPTS: [&str; 2] = ["kick", "sheep"];
 
