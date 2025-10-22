@@ -18,14 +18,14 @@ pub enum OptionArrays {
 }
 
 fn get_desired_keybind(arena_target: usize) -> (String, String) {
-//    let cc_opt = get_rnd_str_from_const_arr(OptionArrays::CcOpts);
-//
-//    match cc_opt.as_str() {
-//        "sheep" => return (cc_opt, USER_SHEEPS[arena_target].to_string()),
-//        "kick" => return (cc_opt, USER_KICKS[arena_target].to_string()),
-//        _ => (String::from(""), String::from("")),
-//    }
-    (String::from("kick"), USER_KICKS[arena_target].to_string())
+    let cc_opt = get_rnd_str_from_const_arr(OptionArrays::CcOpts);
+
+    match cc_opt.as_str() {
+        "sheep" => return (cc_opt, USER_SHEEPS[arena_target].to_string()),
+        "kick" => return (cc_opt, USER_KICKS[arena_target].to_string()),
+        _ => (String::from(""), String::from("")),
+    }
+    //(String::from("kick"), USER_KICKS[arena_target].to_string())
 }
 
 fn get_rnd_wait_time() -> u128 {
