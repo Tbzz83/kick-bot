@@ -8,7 +8,7 @@ pub const SLEEP_SECONDS: u64 = 1;
 
 // TODO get these values from a function that reads keybinds.yaml
 pub const USER_SHEEPS: [&str; 3] = ["ctrl+7", "ctrl+8", "ctrl+9"];
-pub const USER_KICKS: [&str; 3] = ["&", "*", "("];
+pub const USER_KICKS: [&str; 3] = ["shift+&", "shift+*", "shift+("];
 pub const CC_OPTS: [&str; 2] = ["kick", "sheep"];
 
 pub enum OptionArrays {
@@ -55,12 +55,20 @@ fn get_rnd_str_from_const_arr(opt: OptionArrays) -> String {
     String::from("")
 }
 
-fn get_key_modifier_and_key_from_target_keybind(target_keybind: &String) -> (KeyModifiers, char) {
+fn get_target_key_event(target_keybind: &String) -> Option<KeyEvent> {
     let mut i = 0;
-
+    let mut modifier = KeyModifiers::NONE;
 
     if target_keybind.len() == 1 {
-        return (KeyModifiers::NONE, target_keybind.chars().nth(0).unwrap())
+        return Some(
+            KeyEvent { code: KeyCode::Char(
+                target_keybind.chars().nth(0).unwrap()
+            ), 
+                modifiers: KeyModifiers::NONE, 
+                kind: KeyEventKind::Press, 
+                state: KeyEventState::NONE 
+            }
+        )
     }
 
     for char in target_keybind.as_bytes().iter() {
@@ -70,17 +78,24 @@ fn get_key_modifier_and_key_from_target_keybind(target_keybind: &String) -> (Key
         i += 1;
     }
 
-    let modifier = &target_keybind[..i];
-    let char_pressed: char = target_keybind.chars().nth(i+1).unwrap();
-
-    println!("modifier: {}, char_pressed: {}", modifier, char_pressed);
-
-    match modifier {
-        "shift" => return (KeyModifiers::SHIFT, char_pressed),
-        "ctrl" => return (KeyModifiers::CONTROL, char_pressed),
-        "alt" => return (KeyModifiers::ALT, char_pressed),
-        _ => return (KeyModifiers::NONE, char_pressed),
+    let desired_char: char = target_keybind.chars().nth(i+1).unwrap();
+    match &target_keybind[..i] {
+        "shift" => modifier = KeyModifiers::SHIFT,
+        "alt" => modifier = KeyModifiers::ALT,
+        "ctrl" => modifier = KeyModifiers::CONTROL,
+        _ => (),
     }
+
+    Some(
+        KeyEvent { 
+            code: KeyCode::Char(
+                desired_char,
+            ), 
+            modifiers: modifier, 
+            kind: KeyEventKind::Press, 
+            state: KeyEventState::NONE,
+        }
+    )
 }
 
 fn main() {
@@ -108,43 +123,47 @@ fn main() {
             exit(-1);
         }
 
-        let (key_modifier, char_pressed) = get_key_modifier_and_key_from_target_keybind(&target_keybind);
+        let target_key_event = get_target_key_event(&target_keybind).unwrap();
 
         let option_target_msg = format!("{} target {}", option, arena_target + 1);
         execute!(stdout, Clear(ClearType::All), cursor::MoveTo(0,0), Print(option_target_msg)).unwrap();
+
+        let quit_key_event = KeyEvent { code: KeyCode::Char('c'), modifiers: KeyModifiers::CONTROL, kind: KeyEventKind::Press, state: KeyEventState::NONE };
 
         'input_loop: loop {
             execute!(stdout, cursor::MoveTo(0,1)).unwrap();
 
             match read().unwrap() {
-                // User enters correct keybind
-                Event::Key(KeyEvent {
-                    kind: KeyEventKind::Press,
-                    state: KeyEventState::NONE,
-                    code: KeyCode::Char(c),
-                    modifiers: m,
-                }) if c == char_pressed && m == key_modifier => break 'input_loop,
-
-                // User enters wrong keybind
-                Event::Key(KeyEvent {
-                    kind: KeyEventKind::Press,
-                    state: KeyEventState::NONE,
-                    code: KeyCode::Char(c),
-                    modifiers: m,
-                }) if c != 'c' && m != KeyModifiers::CONTROL => println!("input '{}' is incorrect. char_pressed: {} modifier: {}, target {}", c, char_pressed, key_modifier, target_keybind),
-
-                // User wants to quit the game
-                Event::Key(KeyEvent {
-                    kind: KeyEventKind::Press,
-                    state: KeyEventState::NONE,
-                    code: KeyCode::Char('c'),
-                    modifiers: KeyModifiers::CONTROL,
-                }) => {
-                    disable_raw_mode().unwrap(); 
-                    break 'game_loop;
-                }
+                Event::Key(key_event) => {
+                    println!("{:#?}", key_event);
+                    if key_event == target_key_event {
+                        break 'input_loop;
+                    } else if key_event == quit_key_event {
+                        break 'game_loop;
+                    }
+                },
                 _ => (),
             }
+            
+
+//            match read().unwrap() {
+//                // User enters correct keybind
+//                Event::Key(KeyEvent {
+//                    kind: KeyEventKind::Press,
+//                    state: KeyEventState::NONE,
+//                    code: KeyCode::Char(c),
+//                    modifiers: m,
+//                }) => {
+//                    if c == 'c' && m == KeyModifiers::CONTROL {
+//                        break 'game_loop;
+//                    } else if c == desired_char && m == desired_key_modifier {
+//                        break 'input_loop;
+//                    }
+//                    print!("input '{}' with modifier '{}' is incorrect. ", c, m);
+//                    println!("desired modifier: '{}', target '{}'", desired_key_modifier, target_keybind);
+//                }
+//                _ => (),
+//            }
         }
 
         let rxn_time = now.elapsed().as_millis();
