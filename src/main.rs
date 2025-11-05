@@ -1,10 +1,49 @@
 use crossterm::{cursor, event::{read, Event, KeyCode, KeyEvent, KeyEventKind, KeyEventState, KeyModifiers}, execute, style::Print, terminal::{disable_raw_mode, enable_raw_mode, Clear, ClearType}};
-use std::{io::stdout, process::exit, thread::sleep, time::{Duration, Instant}};
+use std::{collections::HashMap, env, fs, io::stdout, process::exit, thread::sleep, time::{Duration, Instant}};
+use serde::Deserialize;
 
 use rand::{seq::IndexedRandom, Rng};
+use std::sync::OnceLock;
+
+static CONFIG: OnceLock<Config> = OnceLock::new();
+
+// Singleton config
+fn get_config(args: Option<Vec<String>>) -> &'static Config {
+    CONFIG.get_or_init(|| {
+        if let Some(a) = args {
+            
+            let mut config_toml_path: &String = &String::from("Config.toml");
+            if a.len() > 1 {
+                config_toml_path = &a[1];
+            } 
+
+            let toml_string = fs::read_to_string(config_toml_path).expect("Should have been able to read the file");
+
+            let config: Config = toml::from_str(toml_string.as_str()).unwrap();
+            return config
+        } else {
+            return Config {
+                spells: vec![]
+            }
+        }
+
+    })
+}
+
+#[derive(Debug, Deserialize)]
+struct Config {
+    spells: Vec<Spell>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Spell {
+    spell_name: String,
+    keybinds: Vec<String>,
+}
 
 pub const WAIT_TIME_MILLIS: u128 = 1000;
 pub const SLEEP_SECONDS: u64 = 1;
+
 
 // TODO get these values from a function that reads keybinds.yaml
 pub const USER_SHEEPS: [&str; 3] = ["ctrl+7", "ctrl+8", "ctrl+9"];
@@ -98,7 +137,7 @@ fn get_target_key_event(target_keybind: &String) -> Option<KeyEvent> {
     )
 }
 
-fn main() {
+fn game_loop() {
     let mut stdout = stdout();
     enable_raw_mode().unwrap();
 
@@ -173,3 +212,11 @@ fn main() {
     }
     disable_raw_mode().unwrap();
 }
+
+fn main() {
+    let args: Vec<String> = env::args().collect();
+    let config: &'static Config = get_config(Some(args));
+    println!("{:?}", config);
+    //game_loop();
+}
+

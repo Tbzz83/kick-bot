@@ -1,0 +1,7 @@
+[[spells]]
+spell_name = "polymorph"
+keybinds = ["ctrl+7", "ctrl+8", "ctrl+9"]
+
+[[spells]]
+spell_name = "counterspell"
+keybinds = ["shift+7", "shift+8", "shift+9"]
