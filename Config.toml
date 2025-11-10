@@ -4,4 +4,4 @@ keybinds = ["ctrl+7", "ctrl+8", "ctrl+9"]
 
 [[spells]]
 spell_name = "cs"
-keybinds = ["shift+7", "shift+8", "shift+9"]
+keybinds = ["shift+&", "shift+*", "shift+("]

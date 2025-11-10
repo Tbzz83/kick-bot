@@ -58,7 +58,7 @@ pub fn game_loop(config: &Config) {
         }
 
         let rxn_time = now.elapsed().as_millis();
-        let rxn_time_msg = format!("Your reaction time was {} (ms)", rxn_time);
+        let rxn_time_msg = format!("Reaction time:\n{} (ms)", rxn_time);
         execute!(stdout, Clear(ClearType::All), cursor::MoveTo(0,0), Print(rxn_time_msg)).unwrap();
         sleep(Duration::from_secs(SLEEP_SECONDS));
     }
