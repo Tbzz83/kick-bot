@@ -6,8 +6,30 @@ use ratatui::{layout::{Constraint, Direction, Layout, Margin, Rect}, style::{Col
 const ARENA_TARGETS: usize = 3;
 const CASTBAR_WIDTH: u16 = 3;
 
-pub fn test(config: &Config) -> Result<()> {
+
+#[derive(Default, Debug)]
+pub struct App {
+    state: AppState,
+}
+
+#[derive(Default, Debug)]
+enum AppState {
+    #[default]
+    Stopped,
+    Running, 
+    Started, 
+}
+
+impl App {
+    fn run(&mut self) {
+        self.state = AppState::Running;
+    }
+}
+
+
+pub fn tui_init(config: &Config) -> Result<()> {
     color_eyre::install()?;
+    let app = App::default();
     let terminal = ratatui::init();
     let result = run(terminal);
     ratatui::restore();
