@@ -1,7 +1,4 @@
-use rand::Rng;
-use crossterm::{cursor, event::{read, Event, KeyCode, KeyEvent, KeyEventKind, KeyEventState, KeyModifiers}, execute, style::Print, terminal::{disable_raw_mode, enable_raw_mode, Clear, ClearType}};
-use ratatui::DefaultTerminal;
-use std::{io::stdout, thread::sleep, time::{Duration, Instant}};
+use crossterm::{event::{read, Event, KeyCode, KeyEvent, KeyEventKind, KeyEventState, KeyModifiers}};
 use crate::config::Spell;
 
 pub fn get_quit_key_event() -> KeyEvent {

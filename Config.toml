@@ -1,7 +1,9 @@
 [[spells]]
 spell_name = "poly"
 keybinds = ["ctrl+7", "ctrl+8", "ctrl+9"]
+spell_type = "CC"
 
 [[spells]]
 spell_name = "cs"
 keybinds = ["shift+&", "shift+*", "shift+("]
+spell_type = "Interrupt"

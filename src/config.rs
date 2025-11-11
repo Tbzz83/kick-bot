@@ -12,6 +12,13 @@ pub struct Config {
 pub struct Spell {
     pub spell_name: String,
     pub keybinds: Vec<String>,
+    pub spell_type: SpellType,
+}
+
+#[derive(Debug, Deserialize)]
+pub enum SpellType {
+    Interrupt,
+    CC,
 }
 
 pub fn get_or_init_config(args: Option<Vec<String>>) -> &'static Config {

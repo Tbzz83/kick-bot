@@ -2,7 +2,6 @@ use color_eyre::Result;
 use rand::Rng;
 use crossterm::event::{Event};
 use ratatui::DefaultTerminal;
-use std::io::stdout;
 
 use crate::config::{Config, Spell};
 use crate::game::{
@@ -32,7 +31,6 @@ impl<'a> GameController<'a> {
     }
 
     fn game_loop(&mut self, mut terminal: DefaultTerminal) -> Result<()> {
-        let mut stdout = stdout();
         crossterm::terminal::enable_raw_mode()?;
 
         let quit_key_event = get_quit_key_event();

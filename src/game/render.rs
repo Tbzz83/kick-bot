@@ -7,11 +7,12 @@ use ratatui::{
 };
 
 use crate::game::state::GameState;
+use crate::config::SpellType;
 
 const ARENA_TARGETS: usize = 3;
 const CASTBAR_WIDTH: u16 = 3;
 
-pub fn render(frame: &mut Frame, _state: &GameState) {
+pub fn render(frame: &mut Frame, state: &GameState) {
     let area = frame.area();
 
     let outer_layout = Layout::default()
@@ -30,27 +31,51 @@ pub fn render(frame: &mut Frame, _state: &GameState) {
         .constraints((0..ARENA_TARGETS).map(|_| Constraint::Max(CASTBAR_WIDTH)).collect::<Vec<_>>())
         .split(outer_layout[0]);
 
+    let mut casters_areas: Vec<Rect> = vec![];
     for i in 0..ARENA_TARGETS {
         let casters_layout = Layout::default()
             .direction(Direction::Horizontal)
             .constraints(vec![Constraint::Percentage(20), Constraint::Percentage(80)])
             .split(inner_layout[i]);
 
+        let area = Rect {
+            x: casters_layout[0].x + 1,
+            y: casters_layout[0].y + 1,
+            ..casters_layout[0]
+        };
+
+        // Print caster name
         frame.render_widget(
             format!("Target {i}"),
-            Rect {
-                x: casters_layout[0].x + 1,
-                y: casters_layout[0].y + 1,
-                ..casters_layout[0]
-            },
+            area
         );
 
-        let cast_bar = Gauge::default()
-            .block(Block::new().borders(Borders::NONE).padding(Padding::vertical(1)))
-            .gauge_style(Style::default().fg(Color::Yellow))
-            .ratio(0.5);
+        casters_areas.push(casters_layout[1]);
+    }
 
-        frame.render_widget(cast_bar, casters_layout[1]);
+    let current_spell = &state.current_spell.expect("Spell does not exist");
+    let current_target = &state.current_target.expect("Target does not exist");
+    let caster_area = casters_areas.get(*current_target as usize).expect("Caster area could not be retrieved");
+
+    match current_spell.spell_type {
+
+        SpellType::Interrupt => {
+            let cast_bar = Gauge::default()
+                .block(Block::new().borders(Borders::NONE).padding(Padding::vertical(1)))
+                .gauge_style(Style::default().fg(Color::Yellow))
+                .ratio(0.5);
+            frame.render_widget(cast_bar, *caster_area);
+        }
+
+        SpellType::CC => {
+            frame.render_widget(
+                format!("<< {}!", current_spell.spell_name), 
+                Rect {
+                    y: caster_area.y+1,
+                    ..*caster_area
+                },
+            );
+        }
     }
 }
 
