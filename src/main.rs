@@ -1,14 +1,16 @@
-mod game;
 mod config;
-mod tui;
+mod game;
 
 use std::env;
-use crate::{config::get_or_init_config, game::game_loop, tui::tui_init};
-
+use config::get_or_init_config;
+use game::controller::GameController;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     let config = get_or_init_config(Some(args));
-    //game_loop(config);
-    tui_init(config);
+    let mut game = GameController::new(config);
+    if let Err(e) = game.run() {
+        eprintln!("Error: {:?}", e);
+    }
 }
+

@@ -14,25 +14,16 @@ pub struct Spell {
     pub keybinds: Vec<String>,
 }
 
-// Singleton config
 pub fn get_or_init_config(args: Option<Vec<String>>) -> &'static Config {
     CONFIG.get_or_init(|| {
-        if let Some(a) = args {
-            
-            let mut config_toml_path: &String = &String::from("Config.toml");
-            if a.len() > 1 {
-                config_toml_path = &a[1];
-            } 
+        let config_path = args
+            .as_ref()
+            .and_then(|a| a.get(1))
+            .cloned()
+            .unwrap_or_else(|| "Config.toml".to_string());
 
-            let toml_string = fs::read_to_string(config_toml_path).expect("Should have been able to read the file");
-
-            let config: Config = toml::from_str(toml_string.as_str()).unwrap();
-            return config
-        } else {
-            return Config {
-                spells: vec![]
-            }
-        }
-
+        let toml_string = fs::read_to_string(config_path).expect("Unable to read config file");
+        toml::from_str(&toml_string).expect("Invalid config file format")
     })
 }
+
