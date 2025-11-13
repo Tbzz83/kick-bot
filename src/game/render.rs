@@ -60,10 +60,20 @@ pub fn render(frame: &mut Frame, state: &GameState) {
     match current_spell.spell_type {
 
         SpellType::Interrupt => {
+            let mut spell_cast_time_elapsed_millis = state.spell_cast_time_elapsed_millis.expect("Error with spell_cast_time_elapsed. Does not exist");
+            let cast_time_secs = current_spell.cast_time_secs.expect("Current spell does not have cast time");
+            let cast_time_millis = (cast_time_secs * 1000.0) as u128;
+
+            // Keeps value between 0-cast_time
+            if spell_cast_time_elapsed_millis > cast_time_millis {
+                spell_cast_time_elapsed_millis = cast_time_millis;
+            }
+            let ratio = (spell_cast_time_elapsed_millis as f64) / (cast_time_millis as f64);
+
             let cast_bar = Gauge::default()
                 .block(Block::new().borders(Borders::NONE).padding(Padding::vertical(1)))
                 .gauge_style(Style::default().fg(Color::Yellow))
-                .ratio(0.5);
+                .ratio(ratio);
             frame.render_widget(cast_bar, *caster_area);
         }
 

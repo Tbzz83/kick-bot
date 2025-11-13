@@ -13,6 +13,7 @@ pub struct Spell {
     pub spell_name: String,
     pub keybinds: Vec<String>,
     pub spell_type: SpellType,
+    pub cast_time_secs: Option<f64>,
 }
 
 #[derive(Debug, Deserialize)]

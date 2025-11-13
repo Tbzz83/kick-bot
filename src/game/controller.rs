@@ -1,6 +1,8 @@
+use std::time::Duration;
+
 use color_eyre::Result;
 use rand::Rng;
-use crossterm::event::{Event};
+use crossterm::event::{poll, read, Event};
 use ratatui::DefaultTerminal;
 
 use crate::config::{Config, Spell};
@@ -46,15 +48,20 @@ impl<'a> GameController<'a> {
             self.state.current_target = Some(arena_target);
             self.state.current_spell = Some(target_spell);
 
-            terminal.draw(|f| render(f, &self.state))?;
 
             let now = std::time::Instant::now();
             loop {
-                if let Some(Event::Key(key_event)) = read_input_event() {
-                    if key_event == target_key_event {
-                        break;
-                    } else if key_event == quit_key_event {
-                        break 'game_loop;
+                self.state.spell_cast_time_elapsed_millis = Some(now.elapsed().as_millis().clone());
+                terminal.draw(|f| render(f, &self.state))?;
+
+                let timeout = Duration::from_secs_f32(1.0 /20.0);
+                if poll(timeout)? {
+                    if let Event::Key(key_event) = read()? {
+                        if key_event == target_key_event {
+                            break;
+                        } else if key_event == quit_key_event {
+                            break 'game_loop;
+                        }
                     }
                 }
             }
