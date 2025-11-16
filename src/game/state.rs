@@ -1,5 +1,3 @@
-use std::time::Instant;
-
 use crate::config::{Config, Spell};
 
 #[derive(Debug)]
@@ -9,7 +7,8 @@ pub struct GameState<'a> {
     pub current_spell: Option<&'a Spell>,
 
     // Time elapsed since interruptable cast began in milliseconds
-    pub spell_cast_time_elapsed_millis: Option<u128>,
+    pub interruptable_cast_time_elapsed_millis: Option<u128>,
+    pub successful_interrupt : Option<bool>,
 }
 
 impl<'a> GameState<'a> {
@@ -18,7 +17,8 @@ impl<'a> GameState<'a> {
             config,
             current_target: None,
             current_spell: None,
-            spell_cast_time_elapsed_millis: None,
+            interruptable_cast_time_elapsed_millis: None,
+            successful_interrupt: None,
         }
     }
 }

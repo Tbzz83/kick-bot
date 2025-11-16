@@ -12,7 +12,7 @@ use crate::config::SpellType;
 const ARENA_TARGETS: usize = 3;
 const CASTBAR_WIDTH: u16 = 3;
 
-pub fn render(frame: &mut Frame, state: &GameState) {
+pub fn casters_render_template(frame: &mut Frame) -> Vec<Rect> {
     let area = frame.area();
 
     let outer_layout = Layout::default()
@@ -53,26 +53,44 @@ pub fn render(frame: &mut Frame, state: &GameState) {
         casters_areas.push(casters_layout[1]);
     }
 
+    casters_areas
+}
+
+pub fn render(frame: &mut Frame, state: &GameState) {
     let current_spell = &state.current_spell.expect("Spell does not exist");
     let current_target = &state.current_target.expect("Target does not exist");
-    let caster_area = casters_areas.get(*current_target as usize).expect("Caster area could not be retrieved");
+    let casters_area = casters_render_template(frame);
+    let caster_area = casters_area.get(*current_target as usize).expect("Caster area could not be retrieved");
 
     match current_spell.spell_type {
 
         SpellType::Interrupt => {
-            let mut spell_cast_time_elapsed_millis = state.spell_cast_time_elapsed_millis.expect("Error with spell_cast_time_elapsed. Does not exist");
+            let mut interruptable_cast_time_elapsed_millis = state.interruptable_cast_time_elapsed_millis.unwrap();
             let cast_time_secs = current_spell.cast_time_secs.expect("Current spell does not have cast time");
             let cast_time_millis = (cast_time_secs * 1000.0) as u128;
+            let cast_bar: Gauge;
 
             // Keeps value between 0-cast_time
-            if spell_cast_time_elapsed_millis > cast_time_millis {
-                spell_cast_time_elapsed_millis = cast_time_millis;
+            if interruptable_cast_time_elapsed_millis > cast_time_millis {
+                interruptable_cast_time_elapsed_millis = cast_time_millis;
             }
-            let ratio = (spell_cast_time_elapsed_millis as f64) / (cast_time_millis as f64);
+            let ratio = (interruptable_cast_time_elapsed_millis as f64) / (cast_time_millis as f64);
+            let gauge_color: Style;
 
-            let cast_bar = Gauge::default()
+            if state.successful_interrupt.unwrap() {
+                if ratio < 0.2 {
+                    gauge_color = Style::default().fg(Color::LightCyan)
+                } else if ratio < 1.0 {
+                    gauge_color = Style::default().fg(Color::Green)
+                } else {
+                    gauge_color = Style::default().fg(Color::Red)
+                }
+            } else {
+                gauge_color = Style::default().fg(Color::Yellow)
+            }
+            cast_bar = Gauge::default()
                 .block(Block::new().borders(Borders::NONE).padding(Padding::vertical(1)))
-                .gauge_style(Style::default().fg(Color::Yellow))
+                .gauge_style(gauge_color)
                 .ratio(ratio);
             frame.render_widget(cast_bar, *caster_area);
         }
