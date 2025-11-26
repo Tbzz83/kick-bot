@@ -7,4 +7,4 @@
 spell_name = "cs"
 keybinds = ["7", "8", "9"] 
 spell_type = "Interrupt"
-cast_time_secs = 1.5
+cast_time_secs = 0.5

@@ -59,7 +59,7 @@ impl<'a> GameController<'a> {
                 self.state.interruptable_cast_time_elapsed_millis = Some(now.elapsed().as_millis().clone());
                 terminal.draw(|f| render(f, &self.state))?;
 
-                let timeout = Duration::from_secs_f32(1.0 /20.0);
+                let timeout = Duration::from_secs_f32(1.0/20.0);
                 if poll(timeout)? {
                     if let Event::Key(key_event) = read()? {
                         if key_event == target_key_event {
